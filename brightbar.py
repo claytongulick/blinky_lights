@@ -13,6 +13,7 @@ from startup_sequence import startup_sequence
 #from gif_animation import GifAnimation
 from sparkle_animation import SparkleAnimation
 from lines_animation import LinesAnimation
+from rain_animation import RainAnimation
 from config import *
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(threadName)-10s) %(message)s',)
@@ -22,14 +23,20 @@ class Brightbar:
     #[brightness, blue, green, red]
     pixel_buffer = [POWER,0,0,0] * LEDS_PER_PANEL * NUM_PANELS
     start_clock = None
+    animation_time = 20000
     
     def __init__(self):
         self.init_spi()
         #animation = GifAnimation('gifs/extracted/trippy_39_30x30')
         #animation = SparkleAnimation(None, SparkleAnimation.SPEED_SLOW, [POWER,255,255,255], 1000)
         #animation = SparkleAnimation(None, 2000, [POWER,255,255,255], 1000)
-        animation = LinesAnimation(None, 3000, [POWER,255,255,255], 0)
-        self.animations = [animation]
+        #animation = LinesAnimation(None, 3000, [POWER,255,255,255], 0)
+        animation = RainAnimation(None, .1, [POWER, 0.0, 200.0, 0.0])
+        self.animations = [
+            SparkleAnimation(None, 2000, [POWER,255,255,255], 1000),
+            LinesAnimation(None, 3000, [POWER,255,255,255], 0),
+            RainAnimation(None, .1, [POWER, 0.0, 200.0, 0.0])
+            ]
         self.render_thread = None
     
     def init_spi(self):
@@ -129,8 +136,13 @@ class Brightbar:
         if self.start_clock == None:
             self.frame_count = 0
             self.start_clock = time.time()
+            
+        elapsed_time = time.time() - self.start_clock
+        num_animations = int(round(elapsed_time / (self.animation_time / 1000)))
+        current_animation = int(num_animations) % len(self.animations)
+        #logging.debug("elapsed time: " + str(elapsed_time) + " num animations:" + str(num_animations) + " current animation:" + str(current_animation))
         
-        animation = self.animations[0]
+        animation = self.animations[current_animation]
         
         frame = animation.get_next_frame()
         

@@ -149,14 +149,19 @@ class SparkleAnimation(Animation):
             self.current_color = self.color
             
         if (now - self.last_spawn_time) > self.spawn_rate:
-            #logging.debug("current color: " + str(self.current_color))
-            sparkle = self.Sparkle(random() * self.speed, None, self.current_color, None, None)
-            #sparkle = self.Sparkle(random() * 500, None, [POWER,255,255,255], None, None)
-            for s in self.sparkles:
-                if (sparkle.x == s.x) and (sparkle.y ==s.y):
-                    sparkle.x = sparkle.x + 1
-            #[POWER, int(random()*255),int(random()*255),int(random() * 255)], None, None)
-            self.sparkles.append(sparkle)
+            if len(self.sparkles) < self.MAX_SPARKLES:
+                #logging.debug("current color: " + str(self.current_color))
+                lifetime = random() * self.speed
+                if lifetime < 500:
+                    lifetime = 500.0
+                sparkle = self.Sparkle(lifetime, None, self.current_color, None, None)
+                #sparkle = self.Sparkle(random() * 500, None, [POWER,255,255,255], None, None)
+                for s in self.sparkles:
+                    if (sparkle.x == s.x) and (sparkle.y ==s.y):
+                        sparkle.x = sparkle.x + 1
+                #[POWER, int(random()*255),int(random()*255),int(random() * 255)], None, None)
+                self.sparkles.append(sparkle)
+                self.last_spawn_time = now
             
         #cull any dead sparkles
         self.sparkles = [sparkle for sparkle in self.sparkles if not sparkle.is_dead]
