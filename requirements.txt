@@ -26,4 +26,4 @@ requests==2.11.1
 serbus==1.0.5
 six==1.8.0
 urllib3==1.9.1
-Werkzeug==0.9.6
+Werkzeug==0.15.3
